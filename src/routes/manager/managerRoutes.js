@@ -8,6 +8,7 @@ const data_part = require("../../models/part/data/parts-data");
 const data_subcategory = require("../../models/car/data/subCategory-data");
 const Repair = require("../../models/repair/repair-model");
 const User = require("../../models/person/users-model");
+const ProblemReport = require("../../models/repair/problem-model");
 const {
   checkMechanicsSkillsForMission,
 } = require("../../services/repair/quote-service");
@@ -147,6 +148,15 @@ router.post("/start_reparation", async (req, res) => {
     });
     console.log(repair);
     res.json({ success: true, message: "Data ok" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+router.get("/problems", async(req,res) => {
+  try {
+    const problems = await ProblemReport.find();
+    res.json({ success: true, problems });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
