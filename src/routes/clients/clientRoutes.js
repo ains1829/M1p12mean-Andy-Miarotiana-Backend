@@ -14,29 +14,57 @@ router.get("/request_repair", async (req, res) => {
 
 router.post("/add_cars", async (req, res) => {
   try {
-    const car = new Car(req.body);
-    await car.save();
-    res.json({ message: "🚗 Voiture créée avec succès", car });
+    console.log(req.body);
+    // const car = new Car(req.body);
+    // await car.save();
+    res.json({ message: "🚗 Voiture créée avec succès" });
   } catch (error) {
     res.json({ message: "❌ Erreur lors de la création", error });
   }
 });
 
+router.get("/get_cars", async (req, res) => {
+  try {
+    const user_connected = req.user;
+    const iduser = user_connected.id;
+    const reponse = await Car.find({ userId: iduser });
+    return res.json({ succes: true, data: reponse });
+  } catch (error) {
+    res.json({
+      succes: false,
+      error: "Une erreur s'est produite.",
+    });
+  }
+});
+
+router.get("/get_problem", async (req, res) => {
+  try {
+    const user_connected = req.user;
+    const iduser = user_connected.id;
+    const reponse = await ProblemReport.find({ userId: iduser });
+    return res.json({ succes: true, data: reponse });
+  } catch (error) {
+    res.json({
+      succes: false,
+      error: "Une erreur s'est produite.",
+    });
+  }
+});
+
 router.post("/request_problem", async (req, res) => {
   try {
-    const { carId, description, images } = req.body;
+    const { carId, description } = req.body;
+    console.log("salut", carId, description);
     const user_connected = req.user;
     const userId = user_connected.id;
-    if (!carId || !description) {
-      return res
-        .status(400)
-        .json({ message: "Tous les champs requis ne sont pas fournis." });
+    const car = await Car.findById(carId);
+    if (!car || !carId || !description) {
+      throw new Error("Tous les champs requis ne sont pas fournis.");
     }
     const newProblem = new ProblemReport({
       userId,
       carId,
       description,
-      images,
     });
     await newProblem.save();
     return res.json({
@@ -47,7 +75,7 @@ router.post("/request_problem", async (req, res) => {
   } catch (error) {
     return res.json({
       succes: false,
-      message: error,
+      message: error.message,
     });
   }
 });

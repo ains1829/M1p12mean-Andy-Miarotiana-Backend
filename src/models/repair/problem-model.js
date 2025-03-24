@@ -16,11 +16,6 @@ const ProblemReportSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    images: [
-      {
-        type: String, // URLs des images uploadées (Cloudinary, ImageBB, etc.)
-      },
-    ],
     datereportProblem: {
       type: Date,
       default: Date.now,

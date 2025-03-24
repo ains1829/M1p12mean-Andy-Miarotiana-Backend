@@ -41,6 +41,11 @@ const carSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    imageVoiture: [
+      {
+        type: String,
+      },
+    ],
   },
   { timestamps: true }
 );
