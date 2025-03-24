@@ -104,30 +104,33 @@ router.post("/final_devis", async (req, res) => {
 
 router.post("/give_devis", async (req, res) => {
   try {
-    const { problemId, userId, carId, type, items, repair_subacategory } =
+    const { problemId, userId, carId, type, items, repair } =
       req.body;
     await findDocumentById(ProblemReport, problemId, "Problem not found");
     await findDocumentById(Car, carId, "Car not found");
+
     const partIds = extractIds(items, "partId");
-    const parts = await findDocumentsByIds(
+    await findDocumentsByIds(
       Part,
       partIds,
       "Some parts do not exist"
     );
-    const subcategoryIds = extractIds(repair_subacategory, "subcategoryid");
+
+    const subcategoryIds = extractIds(repair, "subcategoryid");
     await findDocumentsByIds(
       SubCategory,
       subcategoryIds,
       "Some reparation do not exist"
     );
-    const totalprice = calculateTotalPrice(repair_subacategory, parts);
+
+    const totalprice = calculateTotalPrice(repair, items);
     const quote = new Quote({
       problemid: problemId,
       userid: userId,
       carid: carId,
       type,
-      items: parts,
-      repair: repair_subacategory,
+      items,
+      repair,
       totalprice,
     });
     await quote.save();

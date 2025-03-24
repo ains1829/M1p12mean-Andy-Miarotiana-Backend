@@ -10,10 +10,12 @@ function getPriceRepair(repair) {
 function getPriceParts(parts) {
   let total_price = 0;
   parts.forEach((element) => {
-    total_price += element.price;
+    const quantity = element.quantite
+    total_price += element.price * quantity;
   });
   return total_price;
 }
+
 
 function getTotalEstimatedHour(repair) {
   let total_minute = 0;

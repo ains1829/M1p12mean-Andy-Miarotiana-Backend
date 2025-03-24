@@ -97,6 +97,10 @@ const QuoteSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    quoteVersion: {
+      type: Number,
+      default: 1,
+    },
   },
   { timestamps: true }
 );

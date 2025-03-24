@@ -162,4 +162,22 @@ router.get("/problems", async(req,res) => {
   }
 });
 
+router.get("/all-parts", async(req, res) => {
+  try {
+    const parts = await Part.find();
+    res.json({ success: true, parts });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+})
+
+router.get("/all-services", async(req, res) => {
+  try {
+    const subservices = await SubCategory.find();
+    res.json({ success: true, subservices });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+})
+
 module.exports = router;
