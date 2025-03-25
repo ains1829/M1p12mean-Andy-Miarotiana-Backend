@@ -1,15 +1,25 @@
 const express = require("express");
 const { middleware_auth_client } = require("../../middlewares/auth-middleware");
-const router = express.Router();
 const Car = require("../../models/car/car-model");
 const ProblemReport = require("../../models/repair/problem-model");
 const Appointment = require("../../models/rdv/rdv-model");
 const User = require("../../models/person/users-model");
+const Quote = require("../../models/repair/quote-model");
+const router = express.Router();
 
 router.use(middleware_auth_client);
 
-router.get("/request_repair", async (req, res) => {
-  res.json({ message: "salut", person: req.user });
+router.get("/get_devisbyproblem", async (req, res) => {
+  try {
+    const { problem_id } = req.query;
+    console.log(problem_id);
+    const getDevis = await Quote.find({ problemid: problem_id }).sort({
+      datequote: -1,
+    });
+    return res.json({ success: true, devis: getDevis });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
 });
 
 router.post("/add_cars", async (req, res) => {
