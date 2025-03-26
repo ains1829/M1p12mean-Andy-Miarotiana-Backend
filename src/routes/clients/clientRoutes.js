@@ -6,13 +6,60 @@ const Appointment = require("../../models/rdv/rdv-model");
 const User = require("../../models/person/users-model");
 const Quote = require("../../models/repair/quote-model");
 const router = express.Router();
-
+const Repair = require("../../models/repair/repair-model");
 router.use(middleware_auth_client);
+
+router.get("/accepte_devis", async (req, res) => {
+  try {
+    const { id_quote } = req.query;
+    const quote = await Quote.findById(id_quote);
+    const problem = await ProblemReport.findById(quote.problemid);
+    problem.have_devis = true;
+    quote.isAccepted = true;
+    await quote.save();
+    await problem.save();
+    const sub_category_progress = [];
+    quote.repair.forEach((element) => {
+      sub_category_progress.push({
+        categoryid: element.categoryid,
+        subcategory: element.subcategoryid,
+        subcategoryname: element.subcategoryname,
+      });
+    });
+    const repair = new Repair({
+      userid: quote.userid,
+      problemid: quote.problemid,
+      carid: quote.carid,
+      nameuser: quote.nameuser,
+      repairCost: quote.totalprice,
+      repair: sub_category_progress,
+    });
+    await repair.save();
+    return res.json({ success: true, data: "Succes" });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+});
+
+router.post("/addcomment", async (req, res) => {
+  try {
+    const { id_quote, commentaire } = req.body;
+    const quote = await Quote.findById(id_quote);
+    const commentaire_client = {
+      providerClient: true,
+      comment: commentaire,
+    };
+    quote.commentaire.push(commentaire_client);
+    await quote.save();
+    return res.json({ success: true, data: "Succes" });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+});
 
 router.get("/get_devisbyproblem", async (req, res) => {
   try {
     const { problem_id } = req.query;
-    console.log(problem_id);
     const getDevis = await Quote.find({ problemid: problem_id }).sort({
       datequote: -1,
     });
@@ -67,6 +114,7 @@ router.post("/request_problem", async (req, res) => {
     console.log("salut", carId, description);
     const user_connected = req.user;
     const userId = user_connected.id;
+    const nameuser = user_connected.fullname;
     const car = await Car.findById(carId);
     if (!car || !carId || !description) {
       throw new Error("Tous les champs requis ne sont pas fournis.");
@@ -74,7 +122,11 @@ router.post("/request_problem", async (req, res) => {
     const newProblem = new ProblemReport({
       userId,
       carId,
+      nameuser,
       description,
+      marquecar: car.brand,
+      modelcar: car.model,
+      yearcar: car.year,
     });
     await newProblem.save();
     return res.json({

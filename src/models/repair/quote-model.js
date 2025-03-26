@@ -61,9 +61,25 @@ const QuoteSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    nameuser: {
+      type: String,
+      required: false,
+    },
     carid: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Car",
+      required: true,
+    },
+    marquecar: {
+      type: String,
+      required: true,
+    },
+    modelcar: {
+      type: String,
+      required: true,
+    },
+    yearcar: {
+      type: String,
       required: true,
     },
     items: [quotationDetailSchema],
@@ -94,6 +110,21 @@ const QuoteSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    commentaire: [
+      {
+        providerClient: {
+          type: Boolean,
+          default: true,
+        },
+        comment: {
+          type: String,
+        },
+        datecomment: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

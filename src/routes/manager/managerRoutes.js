@@ -21,6 +21,23 @@ const {
 const router = express.Router();
 
 router.use(middleware_auth_manager);
+
+router.post("/addcomment", async (req, res) => {
+  try {
+    const { id_quote, commentaire } = req.body;
+    const quote = await Quote.findById(id_quote);
+    const commentaire_client = {
+      providerClient: false,
+      comment: commentaire,
+    };
+    quote.commentaire.push(commentaire_client);
+    await quote.save();
+    return res.json({ success: true, data: "Succes" });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+});
+
 router.get("/get_devisbyproblem", async (req, res) => {
   try {
     const { problem_id } = req.query;
@@ -69,6 +86,10 @@ router.post("/give_devis", async (req, res) => {
       repair: repair_subcategory,
       totalprice: totalprice,
       estimationtime: time_estimated,
+      nameuser: problem.nameuser,
+      marquecar: problem.marquecar,
+      modelcar: problem.modelcar,
+      yearcar: problem.yearcar,
     });
     await quote.save();
     return res.json({ success: true, devis: quote });

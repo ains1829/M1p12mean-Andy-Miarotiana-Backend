@@ -43,9 +43,13 @@ const repairSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    problemid: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ProblemReport",
+      required: true,
+    },
     carid: { type: mongoose.Schema.Types.ObjectId, ref: "Car", required: true },
-    customerName: { type: String, required: true },
-    customerEmail: { type: String, required: true },
+    nameuser: { type: String, required: true },
     repairstartdate: { type: Date, default: null },
     repairenddate: { type: Date, default: null },
     final_status: {
@@ -54,15 +58,14 @@ const repairSchema = new mongoose.Schema(
       default: "in-progress",
       required: true,
     },
+    status_creneaux: {
+      type: String,
+      enum: ["creneaux att", "creneaux dispo", "en reparation"],
+      default: "creneaux att",
+    },
     repairCost: { type: Number, required: true },
     repair: [repair_progression],
     mechanics: [mechanicSchema],
-    images: [
-      {
-        imageUrl: { type: String, required: false },
-        imageAfter: { type: String, require: false },
-      },
-    ],
   },
   { timestamps: true }
 );
