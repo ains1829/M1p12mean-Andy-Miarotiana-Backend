@@ -44,13 +44,17 @@ router.get("/accepte_devis", async (req, res) => {
 router.post("/addcomment", async (req, res) => {
   try {
     const { id_quote, commentaire } = req.body;
-    const quote = await Quote.findById(id_quote);
     const commentaire_client = {
       providerClient: true,
       comment: commentaire,
     };
-    quote.commentaire.push(commentaire_client);
-    await quote.save();
+
+    const updatedQuote = await Quote.findByIdAndUpdate(
+      id_quote,
+      { $push: { commentaire: commentaire_client } },
+      { new: true }
+    )
+    console.log({UPDATE: updatedQuote})
     return res.json({ success: true, data: "Succes" });
   } catch (error) {
     return res.json({ success: false, message: error.message });
