@@ -25,14 +25,16 @@ router.use(middleware_auth_manager);
 router.post("/addcomment", async (req, res) => {
   try {
     const { id_quote, commentaire } = req.body;
-    const quote = await Quote.findById(id_quote);
     const commentaire_client = {
       providerClient: false,
       comment: commentaire,
     };
-    quote.commentaire.push(commentaire_client);
-    await quote.save();
-    return res.json({ success: true, data: "Succes" });
+    const updatedQuote = await Quote.findByIdAndUpdate(
+      id_quote,
+      { $push: { commentaire: commentaire_client } },
+      { new: true }
+    )
+    return res.json({ success: true, data: "Vous avez commenter le devis du client" });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }

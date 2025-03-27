@@ -55,7 +55,7 @@ router.post("/addcomment", async (req, res) => {
       { new: true }
     )
     console.log({UPDATE: updatedQuote})
-    return res.json({ success: true, data: "Succes" });
+    return res.json({ success: true, data: "Votre commentaire a été ajouter" });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }
