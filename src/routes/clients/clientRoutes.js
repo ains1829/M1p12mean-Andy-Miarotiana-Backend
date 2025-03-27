@@ -9,6 +9,10 @@ const router = express.Router();
 const Repair = require("../../models/repair/repair-model");
 router.use(middleware_auth_client);
 
+
+
+
+
 router.get("/accepte_devis", async (req, res) => {
   try {
     const { id_quote } = req.query;
@@ -27,12 +31,18 @@ router.get("/accepte_devis", async (req, res) => {
       });
     });
     const repair = new Repair({
+      quoteid: quote._id,
       userid: quote.userid,
       problemid: quote.problemid,
       carid: quote.carid,
+      marquecar: quote.marquecar,
+      modelcar: quote.modelcar,
       nameuser: quote.nameuser,
+      yearcar: quote.yearcar,
       repairCost: quote.totalprice,
       repair: sub_category_progress,
+      estimationtime: quote.estimationtime,
+      description_problem: problem.description,
     });
     await repair.save();
     return res.json({ success: true, data: "Succes" });

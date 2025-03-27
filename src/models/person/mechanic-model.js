@@ -12,6 +12,7 @@ const mechanicSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    phonenumber: { type: String },
     isActive: {
       type: Boolean,
       default: true,
@@ -23,7 +24,7 @@ const mechanicSchema = new mongoose.Schema(
           ref: "Category", // Référence à un modèle de catégorie (assumons qu'il y ait un modèle Category)
           required: true,
         },
-        
+        namecategory: { type: String, required: true },
       },
     ],
     salary: {

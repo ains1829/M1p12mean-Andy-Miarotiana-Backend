@@ -9,6 +9,8 @@ const data_subcategory = require("../../models/car/data/subCategory-data");
 const Repair = require("../../models/repair/repair-model");
 const User = require("../../models/person/users-model");
 const ProblemReport = require("../../models/repair/problem-model");
+const Mechanic = require("../../models/person/mechanic-model");
+const Appointment = require("../../models/rdv/rdv-model");
 const {
   middleware_auth_manager,
 } = require("../../middlewares/auth-middleware");
@@ -19,8 +21,88 @@ const {
   getTotalEstimatedHour,
 } = require("../../services/repair/quote-service");
 const router = express.Router();
-
 router.use(middleware_auth_manager);
+
+router.post("/createCreneaux", async (req, res) => {
+  try {
+    const { repair_choix_id, horaire_rdv } = req.body;
+    const existingRepair = await Repair.findById(repair_choix_id);
+    existingRepair.status_creneaux = "creneaux dispo";
+    await existingRepair.save();
+    const rdv = new Appointment({
+      idrepair: repair_choix_id,
+      appointments: horaire_rdv,
+    });
+    await rdv.save();
+    console.log(rdv);
+    res.json({ succes: true, data: rdv });
+  } catch (error) {
+    res.json({ succes: false, message: error.message });
+  }
+});
+
+router.post("/assign_mecanicien_work", async (req, res) => {
+  try {
+    const { id_repair, mecano } = req.body;
+    const existingRepair = await Repair.findById(id_repair);
+    mecano.forEach((element) => {
+      existingRepair.mechanics.push(element);
+    });
+    const categoryIds = existingRepair.repair.map(
+      (element) => element.categoryid
+    );
+    if (checkMechanicsSkillsForMission(mecano, categoryIds) === false) {
+      throw new Error(
+        "Les mécaniciens assignés ne peuvent pas couvrir toutes les catégories de la mission."
+      );
+    }
+    await existingRepair.save();
+    res.json({ succes: true, data: existingRepair });
+  } catch (error) {
+    res.json({ succes: false, message: error.message });
+  }
+});
+
+router.get("/get_mecanicien", async (req, res) => {
+  try {
+    const mecaniciens = await Mechanic.find();
+    res.json({ succes: true, data: mecaniciens });
+  } catch (error) {
+    res.json({ succes: false, message: error.message });
+  }
+});
+
+router.post("/assign_mecanicien", async (req, res) => {
+  try {
+    const { userId, skills, salary } = req.body;
+    const existingUser = await User.findById(userId);
+    const newMechanic = new Mechanic({
+      fullName: existingUser.fullName,
+      email: existingUser.email,
+      userId: existingUser._id,
+      phonenumber: existingUser.phoneNumber,
+      skills,
+      salary,
+    });
+    await newMechanic.save();
+    res.json({
+      succes: true,
+      message: "Mécanicien ajouté avec succès",
+      mechanic: newMechanic,
+    });
+  } catch (error) {
+    res.json({ succes: false, message: error.message });
+  }
+});
+
+router.get("/getallrepair", async (req, res) => {
+  try {
+    const repair = await Repair.find();
+    return res.json({ sucess: true, data: repair });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+});
 
 router.post("/addcomment", async (req, res) => {
   try {
