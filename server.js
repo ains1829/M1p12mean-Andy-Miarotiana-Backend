@@ -20,9 +20,6 @@ app.use("/auth", personRoutes);
 app.use("/client", clientRoutes);
 app.use("/manager", managerRoutes);
 app.use("/mecano", mecanoRoutes);
-app.get("/test", (req, res) => {
-  res.json({ message: "Nouvelle version déployée automatiquement 🚀" });
-});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>
