@@ -9,9 +9,43 @@ const router = express.Router();
 const Repair = require("../../models/repair/repair-model");
 router.use(middleware_auth_client);
 
+router.post("/accept_datereparation", async (req, res) => {
+  try {
+    const { idrepair, id_rdv } = req.body;
+    const repair = await Repair.findById(idrepair);
+    const creneaux = await Appointment.findOne({ idrepair: idrepair });
+    const appointment = creneaux.appointments.id(id_rdv);
+    repair.status_creneaux = "en reparation";
+    repair.repairstartdate = appointment.dateBegin;
+    repair.repairenddateestimated = appointment.dateFin;
+    appointment.isAccepted = true;
+    await creneaux.save();
+    await repair.save();
+    res.json({ succes: true, data: "Succes" });
+  } catch (error) {
+    res.json({ succes: true, data: error.message });
+  }
+});
 
+router.get("/getcreneauxbyreparation", async (req, res) => {
+  try {
+    const { idrepair } = req.query;
+    const creneaux = await Appointment.findOne({ idrepair: idrepair });
+    res.json({ succes: true, data: creneaux });
+  } catch (error) {
+    res.json({ succes: false, message: error.message });
+  }
+});
 
-
+router.get("/getMyRepair", async (req, res) => {
+  try {
+    const user = req.user;
+    const repair = await Repair.find({ userid: user.id });
+    return res.json({ sucess: true, data: repair });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+});
 
 router.get("/accepte_devis", async (req, res) => {
   try {

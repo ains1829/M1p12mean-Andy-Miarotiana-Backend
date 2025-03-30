@@ -21,7 +21,18 @@ const {
   getTotalEstimatedHour,
 } = require("../../services/repair/quote-service");
 const router = express.Router();
+
 router.use(middleware_auth_manager);
+
+router.get("/getcreneauxbyreparation", async (req, res) => {
+  try {
+    const { idrepair } = req.query;
+    const creneaux = await Appointment.findOne({ idrepair: idrepair });
+    res.json({ succes: true, data: creneaux });
+  } catch (error) {
+    res.json({ succes: false, message: error.message });
+  }
+});
 
 router.post("/createCreneaux", async (req, res) => {
   try {
@@ -34,7 +45,6 @@ router.post("/createCreneaux", async (req, res) => {
       appointments: horaire_rdv,
     });
     await rdv.save();
-    console.log(rdv);
     res.json({ succes: true, data: rdv });
   } catch (error) {
     res.json({ succes: false, message: error.message });

@@ -20,7 +20,7 @@ const repair_progression = new mongoose.Schema({
   },
   subcategory: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "sub",
+    ref: "SubCategory",
     required: true,
   },
   subcategoryname: {
@@ -29,8 +29,8 @@ const repair_progression = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["completed", "in-progress"],
-    default: "in-progress",
+    enum: ["completed", "in-progress", "en attente"],
+    default: "en attente",
     required: true,
   },
   subacategorystartdate: { type: Date, default: null },
@@ -78,6 +78,7 @@ const repairSchema = new mongoose.Schema(
     },
     repairstartdate: { type: Date, default: null },
     repairenddate: { type: Date, default: null },
+    repairenddateestimated: { type: Date, default: null },
     final_status: {
       type: String,
       enum: ["completed", "in-progress"],
