@@ -7,7 +7,17 @@ const User = require("../../models/person/users-model");
 const Quote = require("../../models/repair/quote-model");
 const router = express.Router();
 const Repair = require("../../models/repair/repair-model");
+const Brand = require("../../models/car/marque-model");
 router.use(middleware_auth_client);
+
+router.get("/getbrands", async (req, res) => {
+  try {
+    const brands = await Brand.find();
+    res.json({ succes: true, data: brands });
+  } catch (error) {
+    res.json({ succes: true, data: error.message });
+  }
+});
 
 router.post("/accept_datereparation", async (req, res) => {
   try {
@@ -115,10 +125,36 @@ router.get("/get_devisbyproblem", async (req, res) => {
 
 router.post("/add_cars", async (req, res) => {
   try {
-    console.log(req.body);
-    // const car = new Car(req.body);
-    // await car.save();
-    res.json({ message: "🚗 Voiture créée avec succès" });
+    const user_connected = req.user;
+    const iduser = user_connected.id;
+    const {
+      brandId,
+      brand,
+      modelId,
+      model,
+      year,
+      registrationNumber,
+      chassisNumber,
+      imagefile,
+      type,
+      mileage,
+    } = req.body;
+
+    const car = new Car({
+      userId: iduser,
+      brandId,
+      brand,
+      modelId,
+      model,
+      year,
+      registrationNumber,
+      chassisNumber,
+      mileage,
+      imageVoiture: imagefile,
+      type: type.name,
+    });
+    await car.save();
+    res.json({ succes: true, message: "🚗 Voiture créée avec succès" });
   } catch (error) {
     res.json({ message: "❌ Erreur lors de la création", error });
   }
