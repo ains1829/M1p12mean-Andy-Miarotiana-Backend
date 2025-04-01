@@ -9,7 +9,7 @@ const managerRoutes = require("./src/routes/manager/managerRoutes");
 const mecanoRoutes = require("./src/routes/mecano/mecanoRoutes");
 dotenv.config();
 const corsOptions = {
-  origin: ["http://localhost:4200"],
+  origin: ["*"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
