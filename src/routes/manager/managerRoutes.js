@@ -262,16 +262,16 @@ router.post("/generate-brands", async (req, res) => {
 router.post("/categories", async (req, res) => {
   try {
     const repairCategories = [
-      { category: "Vidange et entretien" },
-      { category: "Freinage" },
-      { category: "Pneumatiques" },
-      { category: "Moteur et injection" },
-      { category: "Électricité et batterie" },
-      { category: "Climatisation et chauffage" },
-      { category: "Transmission et embrayage" },
+      { category: "Batterie et gestion de l'énergie" },
+      { category: "Système de recharge" },
+      { category: "Moteur électrique" },
+      { category: "Freinage régénératif" },
+      { category: "Climatisation et gestion thermique" },
+      { category: "Suspension et direction" },
+      { category: "Électronique embarquée et logiciel" },
+      { category: "Pneus et roues" },
       { category: "Carrosserie et peinture" },
-      { category: "Échappement et pollution" },
-      { category: "Direction et suspension" },
+      { category: "Système de surveillance des performances" },    
     ];
     await Category.insertMany(repairCategories);
     res.json({ message: "Catégories insérées avec succès !" });
