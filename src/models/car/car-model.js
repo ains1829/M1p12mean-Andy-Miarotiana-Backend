@@ -41,11 +41,14 @@ const carSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    imageVoiture: [
-      {
-        type: String,
-      },
-    ],
+    imageVoiture: {
+      type: String,
+    },
+    type: {
+      type: String,
+      enum: ["Manuel", "Automatique"],
+      default: "Manuel",
+    },
   },
   { timestamps: true }
 );

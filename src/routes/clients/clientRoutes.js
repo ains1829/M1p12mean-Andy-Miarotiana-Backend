@@ -7,7 +7,55 @@ const User = require("../../models/person/users-model");
 const Quote = require("../../models/repair/quote-model");
 const router = express.Router();
 const Repair = require("../../models/repair/repair-model");
+const Brand = require("../../models/car/marque-model");
 router.use(middleware_auth_client);
+
+router.get("/getbrands", async (req, res) => {
+  try {
+    const brands = await Brand.find();
+    res.json({ succes: true, data: brands });
+  } catch (error) {
+    res.json({ succes: true, data: error.message });
+  }
+});
+
+router.post("/accept_datereparation", async (req, res) => {
+  try {
+    const { idrepair, id_rdv } = req.body;
+    const repair = await Repair.findById(idrepair);
+    const creneaux = await Appointment.findOne({ idrepair: idrepair });
+    const appointment = creneaux.appointments.id(id_rdv);
+    repair.status_creneaux = "en reparation";
+    repair.repairstartdate = appointment.dateBegin;
+    repair.repairenddateestimated = appointment.dateFin;
+    appointment.isAccepted = true;
+    await creneaux.save();
+    await repair.save();
+    res.json({ succes: true, data: "Succes" });
+  } catch (error) {
+    res.json({ succes: true, data: error.message });
+  }
+});
+
+router.get("/getcreneauxbyreparation", async (req, res) => {
+  try {
+    const { idrepair } = req.query;
+    const creneaux = await Appointment.findOne({ idrepair: idrepair });
+    res.json({ succes: true, data: creneaux });
+  } catch (error) {
+    res.json({ succes: false, message: error.message });
+  }
+});
+
+router.get("/getMyRepair", async (req, res) => {
+  try {
+    const user = req.user;
+    const repair = await Repair.find({ userid: user.id });
+    return res.json({ sucess: true, data: repair });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+});
 
 router.get("/accepte_devis", async (req, res) => {
   try {
@@ -27,12 +75,18 @@ router.get("/accepte_devis", async (req, res) => {
       });
     });
     const repair = new Repair({
+      quoteid: quote._id,
       userid: quote.userid,
       problemid: quote.problemid,
       carid: quote.carid,
+      marquecar: quote.marquecar,
+      modelcar: quote.modelcar,
       nameuser: quote.nameuser,
+      yearcar: quote.yearcar,
       repairCost: quote.totalprice,
       repair: sub_category_progress,
+      estimationtime: quote.estimationtime,
+      description_problem: problem.description,
     });
     await repair.save();
     return res.json({ success: true, data: "Succes" });
@@ -75,10 +129,36 @@ router.get("/get_devisbyproblem", async (req, res) => {
 
 router.post("/add_cars", async (req, res) => {
   try {
-    console.log(req.body);
-    // const car = new Car(req.body);
-    // await car.save();
-    res.json({ message: "🚗 Voiture créée avec succès" });
+    const user_connected = req.user;
+    const iduser = user_connected.id;
+    const {
+      brandId,
+      brand,
+      modelId,
+      model,
+      year,
+      registrationNumber,
+      chassisNumber,
+      imagefile,
+      type,
+      mileage,
+    } = req.body;
+
+    const car = new Car({
+      userId: iduser,
+      brandId,
+      brand,
+      modelId,
+      model,
+      year,
+      registrationNumber,
+      chassisNumber,
+      mileage,
+      imageVoiture: imagefile,
+      type: type.name,
+    });
+    await car.save();
+    res.json({ succes: true, message: "🚗 Voiture créée avec succès" });
   } catch (error) {
     res.json({ message: "❌ Erreur lors de la création", error });
   }
