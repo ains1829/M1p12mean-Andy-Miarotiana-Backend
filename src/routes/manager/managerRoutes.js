@@ -4,6 +4,7 @@ const Category = require("../../models/car/category-model");
 const Part = require("../../models/part/parts-model");
 const SubCategory = require("../../models/car/subcategory-model");
 const Quote = require("../../models/repair/quote-model");
+const data_brands = require("../../models/part/data/brandsmodels-data");
 const data_part = require("../../models/part/data/parts-data");
 const data_subcategory = require("../../models/car/data/subCategory-data");
 const Repair = require("../../models/repair/repair-model");
@@ -244,30 +245,7 @@ router.get("/get_all_problem", async (req, res) => {
 
 router.post("/generate-brands", async (req, res) => {
   try {
-    const electricBrands = [
-      {
-        brand: "Tesla",
-        models: [
-          { modelName: "Model S", year: 2024 },
-          { modelName: "Model 3", year: 2024 },
-        ],
-      },
-      {
-        brand: "Lucid Motors",
-        models: [
-          { modelName: "Lucid Air", year: 2024 },
-          { modelName: "Lucid Gravity", year: 2024 },
-        ],
-      },
-      {
-        brand: "Rivian",
-        models: [
-          { modelName: "R1T", year: 2024 },
-          { modelName: "R1S", year: 2024 },
-        ],
-      },
-    ];
-    const datagenerer = await Brand.insertMany(electricBrands);
+    const datagenerer = await Brand.insertMany(data_brands);
     res.json({
       succes: true,
       message: "Marques et modèles insérés avec succès",
