@@ -9,13 +9,17 @@ const managerRoutes = require("./src/routes/manager/managerRoutes");
 const mecanoRoutes = require("./src/routes/mecano/mecanoRoutes");
 dotenv.config();
 const corsOptions = {
-  origin: ["*"],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  origin: function (origin, callback) {
+    callback(null, true); // Accepte toutes les origines
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Ajout de OPTIONS
+  allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
+  credentials: true, // Permet l'utilisation des cookies et des tokens
 };
 mongoose();
 app.use(express.json());
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use("/auth", personRoutes);
 app.use("/client", clientRoutes);
 app.use("/manager", managerRoutes);
