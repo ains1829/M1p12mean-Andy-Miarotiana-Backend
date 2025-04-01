@@ -27,10 +27,12 @@ function getTotalEstimatedHour(repair) {
 }
 
 function checkMechanicsSkillsForMission(mecano, repair_category) {
-  const allSkills = mecano.flatMap((mecano) => mecano.skills);
-  const canCoverCategories = repair_category.every((category) =>
-    allSkills.includes(category)
+  const allSkills = mecano.flatMap((mecano) =>
+    mecano.skills.map((s) => s.categoryId)
   );
+  const canCoverCategories = repair_category
+    .map(String)
+    .every((category) => allSkills.includes(category));
   return canCoverCategories;
 }
 async function findDocumentById(model, id, errorMessage) {

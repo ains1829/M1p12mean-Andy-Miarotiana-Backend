@@ -1,12 +1,13 @@
 const mongoose = require("mongoose");
 
 const mechanicSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  fullName: { type: String, required: true },
   email: { type: String, required: true },
-  phone: { type: String, default: "" },
+  phonenumber: { type: String, default: "" },
   skills: [
     {
       categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+      namecategory: String,
     },
   ],
 });
@@ -19,7 +20,7 @@ const repair_progression = new mongoose.Schema({
   },
   subcategory: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "sub",
+    ref: "SubCategory",
     required: true,
   },
   subcategoryname: {
@@ -28,8 +29,8 @@ const repair_progression = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["completed", "in-progress"],
-    default: "in-progress",
+    enum: ["completed", "in-progress", "en attente"],
+    default: "en attente",
     required: true,
   },
   subacategorystartdate: { type: Date, default: null },
@@ -43,15 +44,41 @@ const repairSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    quoteid: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Quote",
+      required: true,
+    },
+    nameuser: { type: String, required: true },
     problemid: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ProblemReport",
       required: true,
     },
+    description_problem: {
+      type: String,
+      required: true,
+    },
     carid: { type: mongoose.Schema.Types.ObjectId, ref: "Car", required: true },
-    nameuser: { type: String, required: true },
+    marquecar: {
+      type: String,
+      required: true,
+    },
+    modelcar: {
+      type: String,
+      required: true,
+    },
+    yearcar: {
+      type: Number,
+      required: true,
+    },
+    estimationtime: {
+      type: Number,
+      required: true,
+    },
     repairstartdate: { type: Date, default: null },
     repairenddate: { type: Date, default: null },
+    repairenddateestimated: { type: Date, default: null },
     final_status: {
       type: String,
       enum: ["completed", "in-progress"],

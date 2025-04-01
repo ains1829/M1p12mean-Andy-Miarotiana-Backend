@@ -1,40 +1,15 @@
 const mongoose = require("mongoose");
-
-// Schéma pour un rendez-vous
 const appointmentSchema = new mongoose.Schema(
   {
-    userid: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Référence au modèle User
-      required: true,
+    dateBegin: {
+      type: Date,
     },
-    fullname: {
-      type: String,
-      required: true,
+    dateFin: {
+      type: Date,
     },
-    email: {
-      type: String,
-      required: true,
-    },
-    phone: {
-      type: String,
-      required: false,
-    },
-    time: {
-      type: String,
-      enum: [
-        "8h00",
-        "9h00",
-        "10h00",
-        "11h00",
-        "13h00",
-        "14h00",
-        "15h00",
-        "16h00",
-        "17h00",
-        "18h00",
-      ],
-      required: true,
+    isAccepted: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
@@ -42,19 +17,19 @@ const appointmentSchema = new mongoose.Schema(
 
 const appointmentDateSchema = new mongoose.Schema(
   {
-    date: {
-      type: Date,
+    idrepair: {
+      type: String,
       required: true,
-      set: (value) => {
-        return new Date(value.setHours(0, 0, 0, 0));
-      },
     },
-    appointments: [appointmentSchema], // Tableau des rendez-vous pour cette date
+    daterdv: {
+      type: Date,
+      default: Date.now,
+    },
+    appointments: [appointmentSchema],
   },
   { timestamps: true }
 );
 
-// Création du modèle pour la gestion des rendez-vous
 const Appointment = mongoose.model("Appointment", appointmentDateSchema);
 
 module.exports = Appointment;
