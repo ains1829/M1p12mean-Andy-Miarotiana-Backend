@@ -22,6 +22,7 @@ const {
   getTotalEstimatedHour,
 } = require("../../services/repair/quote-service");
 const router = express.Router();
+const moment = require("moment");
 
 router.use(middleware_auth_manager);
 
@@ -387,4 +388,65 @@ router.get("/all-services", async (req, res) => {
   }
 });
 
+// Nombres cles pour le dashboard manager
+router.get("/dashboard/repairs-summary", async (req, res) => {
+  try {
+    const [ongoingRepairs, completedRepairs, requestQuotes, acceptedQuotes] = await Promise.all([
+      Repair.countDocuments({ final_status: "in-progress" }),
+      Repair.countDocuments({ final_status: "completed" }),
+      Quote.countDocuments({ status: "En attente" }),
+      Quote.countDocuments({ status: "Valide Cl" }),
+    ]);
+
+    res.json({
+      success: true,
+      ongoingRepairs,
+      completedRepairs,
+      requestQuotes,
+      acceptedQuotes,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de la récupération des données.",
+      error: error.message,
+    });
+  }
+});
+
+// Revenues des 7 dernieres jours
+router.get("/dashboard/revenues-summary", async (req, res) => {
+  try {
+    const startDate = moment().subtract(6, "days").startOf("day");
+    const endDate = moment().endOf("day");
+    const revenues = await Quote.aggregate([
+      { 
+        $match: { 
+          isAccepted: true,
+          createdAt: { $gte: startDate.toDate(), $lte: endDate.toDate() }
+        } 
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Grouper par date
+          totalRevenue: { $sum: "$totalprice" }
+        }
+      },
+      { $sort: { _id: 1 } } // Trie croissant
+    ]);
+    const allDates = [];
+    for (let i = 0; i < 7; i++) {
+      const date = startDate.clone().add(i, "days").format("YYYY-MM-DD");
+      allDates.push({ _id: date, totalRevenue: 0 });
+    }
+    const finalRevenues = allDates.map(day => {
+      const match = revenues.find(r => r._id === day._id);
+      return match ? match : day;
+    });
+
+    res.json({ success: true, revenues: finalRevenues });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
 module.exports = router;
