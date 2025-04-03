@@ -393,7 +393,7 @@ router.get("/dashboard/repairs-summary", async (req, res) => {
   try {
     const [ongoingRepairs, completedRepairs, requestQuotes, acceptedQuotes] = await Promise.all([
       Repair.countDocuments({ repair: { $elemMatch: { status: "en attente" } } }),
-      Repair.countDocuments({ final_status: "completed" }),
+      Repair.countDocuments({ repair: { $not: { $elemMatch: { status: { $ne: "completed" } } } } }),
       Quote.countDocuments({ status: "En attente" }),
       Quote.countDocuments({ status: "Valide Cl" }),
     ]);
