@@ -392,10 +392,10 @@ router.get("/all-services", async (req, res) => {
 router.get("/dashboard/repairs-summary", async (req, res) => {
   try {
     const [ongoingRepairs, completedRepairs, requestQuotes, acceptedQuotes] = await Promise.all([
-      Repair.countDocuments({ repair: { $elemMatch: { status: "en attente" } } }),
+      Repair.countDocuments({ repair: { $elemMatch: { status: { $in: ["en attente", "in-progress"] } } } }),
       Repair.countDocuments({ repair: { $not: { $elemMatch: { status: { $ne: "completed" } } } } }),
-      Quote.countDocuments({ status: "En attente" }),
-      Quote.countDocuments({ status: "Valide Cl" }),
+      Quote.countDocuments({ isAccepted: false }),
+      Quote.countDocuments({ isAccepted: true }),
     ]);
 
     res.json({
@@ -449,4 +449,27 @@ router.get("/dashboard/revenues-summary", async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 });
+
+// Les meilleures pieces vendues
+router.get("/dashboard/top-parts", async (req, res) => {
+  try {
+    const topParts = await Quote.aggregate([
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: { partId: "$items.partId", partname: "$items.partname" },
+          totalUsed: { $sum: "$items.quantite" },
+          totalCost: { $sum: { $multiply: ["$items.quantite", "$items.price"] } }
+        }
+      },
+      { $sort: { totalUsed: -1 } },
+      { $limit: 5 }
+    ]);
+    res.json({ success: true, topParts });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+
 module.exports = router;
