@@ -457,7 +457,10 @@ router.get("/dashboard/top-parts", async (req, res) => {
       { $unwind: "$items" },
       {
         $group: {
-          obj: { partid: "$items.partid", partname: "$items.partname" },
+          _id: {
+            partid: "$items.partid",
+            partname: "$items.partname"
+          },
           totalUsed: { $sum: "$items.quantite" },
           totalCost: { $sum: { $multiply: ["$items.quantite", "$items.price"] } }
         }
