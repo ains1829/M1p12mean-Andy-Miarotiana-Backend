@@ -3,17 +3,23 @@ const app = express();
 const cors = require("cors");
 const mongoose = require("./src/config/mongo-config");
 const dotenv = require("dotenv");
+dotenv.config();
 const personRoutes = require("./src/routes/auth/personRoute");
 const clientRoutes = require("./src/routes/clients/clientRoutes");
 const managerRoutes = require("./src/routes/manager/managerRoutes");
 const mecanoRoutes = require("./src/routes/mecano/mecanoRoutes");
-dotenv.config();
 const corsOptions = {
   origin: function (origin, callback) {
     callback(null, true); // Accepte toutes les origines
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Ajout de OPTIONS
-  allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
+  allowedHeaders: [
+    "Origin",
+    "X-Requested-With",
+    "Content-Type",
+    "Accept",
+    "Authorization",
+  ],
   credentials: true, // Permet l'utilisation des cookies et des tokens
 };
 mongoose();

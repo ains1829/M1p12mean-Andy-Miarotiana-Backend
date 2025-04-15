@@ -8,7 +8,64 @@ const Quote = require("../../models/repair/quote-model");
 const router = express.Router();
 const Repair = require("../../models/repair/repair-model");
 const Brand = require("../../models/car/marque-model");
+const Remorque = require("../../models/remorque/remorque-model");
+const nodemailer = require("nodemailer");
 router.use(middleware_auth_client);
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_APP,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+router.get("/get_remorque", async (req, res) => {
+  try {
+    const user = req.user;
+    const data = await Remorque.find({ userId: user.id });
+    res.json({
+      succes: true,
+      data: data,
+    });
+  } catch (error) {
+    res.json({
+      succes: false,
+      error: "Erreur lors de la création de la demande.",
+    });
+  }
+});
+router.post("/request_remorque", async (req, res) => {
+  try {
+    const { point_current, point_final } = req.body;
+    const user = req.user;
+    const newRequest = new Remorque({
+      userId: user.id,
+      nameuser: user.fullname,
+      point_current,
+      point_final,
+    });
+    console.log(process.env.EMAIL_APP, process.env.EMAIL_PASS);
+    const mailOptions = {
+      from: process.env.EMAIL_APP,
+      to: process.env.MANAGER_APP,
+      subject: "Demande de remorquage",
+      text: ` Bonjour , ${user.fullName} fait une demande de remorquage`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    await newRequest.save();
+    res.json({
+      succes: true,
+      data: newRequest,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      succes: false,
+      error: "Erreur lors de la création de la demande.",
+    });
+  }
+});
 
 router.get("/getbrands", async (req, res) => {
   try {
@@ -107,8 +164,8 @@ router.post("/addcomment", async (req, res) => {
       id_quote,
       { $push: { commentaire: commentaire_client } },
       { new: true }
-    )
-    console.log({UPDATE: updatedQuote})
+    );
+    console.log({ UPDATE: updatedQuote });
     return res.json({ success: true, data: "Votre commentaire a été ajouter" });
   } catch (error) {
     return res.json({ success: false, message: error.message });
